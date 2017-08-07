@@ -15,10 +15,8 @@ LOGGER = logging.getLogger()
 def parse_arguments():
     """ Parses arguments given at startup """
     parser = ArgumentParser(description='Decodes filenames with url encoding.')
-
-    parser.add_argument('-f', '--folder', metavar='folder',
-                        type=str, nargs='?', help='Change target folder')
-
+    parser.add_argument('folder', metavar='folder',
+                        type=str, help='Target folder')
     return parser.parse_args()
 
 
@@ -35,8 +33,14 @@ def get_list_of_file_names(directory_path):
             if isfile(join(directory_path, filename))]
 
 
-def main(directory_path='.'):
+def main():
     """ Construct a list of filenames to parse, and then rename them """
+
+    # Parse Arguments
+    arguments = parse_arguments()
+
+    # If no argument passed then use working directory
+    directory_path = str(arguments.folder)
 
     # Create two lists: One to contain original names,
     # and a second to contain changed names
@@ -59,12 +63,4 @@ def main(directory_path='.'):
 
 
 if __name__ == '__main__':
-    arguments = parse_arguments()
-
-    # If no argument passed then use working directory
-    if arguments.folder is None:
-        directory_path = '.'
-    else:
-        directory_path = str(arguments.folder)
-
-    main(directory_path)
+    main()
