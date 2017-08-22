@@ -6,10 +6,10 @@ setup(name='Unquote Directory',
       author='Derek Santos',
       license='The MIT License (MIT)',
       url='https://github.com/santosderek/Unquote-Directory',
-      packages=['unquote-directory'],
-      scripts=['unquote-directory/main.py'],
+      packages=['unquote'],
+      scripts=['unquote/main.py'],
       entry_points={
           'console_scripts':
-              ['unquote = unquote-directory.main:main']
+              ['unquote = unquote.main:main']
       }
       )
