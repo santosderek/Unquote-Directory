@@ -10,6 +10,6 @@ setup(name='Unquote Directory',
       scripts=['unquote-directory/main.py'],
       entry_points={
           'console_scripts':
-              ['unquote = main:main']
+              ['unquote = unquote-directory.main:main']
       }
       )
