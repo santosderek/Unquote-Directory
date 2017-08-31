@@ -58,10 +58,10 @@ def unquote_files(directory_path: str):
             LOGGER.debug('ERROR: ' + e)
 
 
-def unquote_directory_name(path: str):
+def unquote_directory_name(path: str, recursive=True):
     for directory, _, _ in walk(path, followlinks=False):
-        if directory != '.':
 
+        if directory != '.' and getcwd() != directory:
             try:
                 changed_directory_name = unquote_name(directory)
                 # Renames a file using the path + filename
@@ -70,8 +70,13 @@ def unquote_directory_name(path: str):
 
                 LOGGER.info('Changed %s to %s' %
                             (directory, changed_directory_name))
+
             except Exception as e:
                 LOGGER.debug('ERROR: ' + str(e))
+
+            finally:
+                if not recursive:
+                    return
 
 
 def main():
@@ -92,14 +97,15 @@ def main():
     if arguments.recursion:
 
         # Unquote all directory names
-        for directory, _, _ in walk(path):
-            if directory != '.' and join(path, directory) != path:
-                unquote_directory_name(directory)
+        unquote_directory_name(path)
 
         # Unquote all file names
         for directory, _, _ in walk(path):
             if directory != '.':
                 unquote_files(join(path, directory))
+    else:
+        unquote_directory_name(path, False)
+        unquote_files(path)
 
 
 if __name__ == '__main__':
