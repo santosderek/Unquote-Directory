@@ -3,7 +3,7 @@
 # Python Modules
 from urllib.parse import unquote
 from os import listdir, rename, walk, getcwd
-from os.path import isfile, join
+from os.path import isfile, isdir, join
 from argparse import ArgumentParser
 import logging
 
@@ -24,12 +24,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def get_list_of_file_names(directory_path):
-    """ Gets a list of files from a path """
-    return [filename for filename in listdir(directory_path)
-            if isfile(join(directory_path, filename))]
-
-
 def unquote_name(name: str):
     """ Unqote and strip invalid characters from a filename and returns it """
     unquoted_name = unquote(name)
@@ -37,46 +31,33 @@ def unquote_name(name: str):
     return stripped_name
 
 
-def unquote_files(directory_path: str):
-    """ Unquote a list of files from a specified directory """
+def unquote_all(path: str):
+    items = listdir(path)
 
-    # Create two lists: One to contain original names,
-    # and a second to contain changed names
-    original_list = get_list_of_file_names(directory_path)
-    unquoted_list = [unquote_name(str(name)) for name in original_list]
-
-    # Loop through both lists and change the names accordingly
-    for original_name, changed_name in zip(original_list, unquoted_list):
+    for item in items:
         try:
-            # Renames a file using the path + filename
-            rename(join(directory_path, original_name),
-                   join(directory_path, changed_name))
+            if isfile(join(path, item)):
+                changed_name = unquote_name(item)
 
-            LOGGER.info('Changed %s to %s' % (join(directory_path, original_name),
-                                              join(directory_path, changed_name)))
-        except Exception as e:
-            LOGGER.debug('ERROR: ' + e)
-
-
-def unquote_directory_name(path: str, recursive=True):
-    for directory, _, _ in walk(path, followlinks=False):
-
-        if directory != '.' and getcwd() != directory:
-            try:
-                changed_directory_name = unquote_name(directory)
-                # Renames a file using the path + filename
-                rename(join(path, directory),
-                       join(path, changed_directory_name))
+                rename(join(path, item),
+                       join(path, changed_name))
 
                 LOGGER.info('Changed %s to %s' %
-                            (directory, changed_directory_name))
+                            (join(path, item),
+                             join(path, changed_name)))
 
-            except Exception as e:
-                LOGGER.debug('ERROR: ' + str(e))
+            elif isdir(join(path, item)):
+                changed_name = unquote_name(item)
 
-            finally:
-                if not recursive:
-                    return
+                rename(join(path, item),
+                       join(path, changed_name))
+
+                LOGGER.info('Changed %s to %s' %
+                            (join(path, item),
+                             join(path, changed_name)))
+
+        except Exception as e:
+            LOGGER.debug('ERROR: ' + str(e))
 
 
 def main():
@@ -95,17 +76,10 @@ def main():
 
     # If recursion argument was present, unquote all sub directories
     if arguments.recursion:
-
-        # Unquote all directory names
-        unquote_directory_name(path)
-
-        # Unquote all file names
         for directory, _, _ in walk(path):
-            if directory != '.':
-                unquote_files(join(path, directory))
+            unquote_all(join(path, directory))
     else:
-        unquote_directory_name(path, False)
-        unquote_files(path)
+        unquote_all(join(path))
 
 
 if __name__ == '__main__':
