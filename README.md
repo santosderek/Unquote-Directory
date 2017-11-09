@@ -3,6 +3,8 @@ Unquote a directory of filenames with url encoding.
 
 ***
 
+***Example:*** %5bThis%20is%20a%20title%5d.txt -> [This is a title].txt
+
 ### How to install:
 
 *** Repository developed in Python 3.6.x ***
